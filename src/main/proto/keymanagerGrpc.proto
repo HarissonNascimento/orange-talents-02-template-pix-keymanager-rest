@@ -1,0 +1,130 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "br.com.zup";
+option java_outer_classname = "KeymanagerGrpc";
+
+package br.com.zup;
+
+service KeymanagerRegisterService {
+
+  rpc createNewKey (GrpcNewPixKeyRequest) returns (GrpcNewPixKeyResponse) {}
+
+}
+
+service KeymanagerRemoveService {
+
+  rpc removePixKey(GrpcRemovePixKeyRequest) returns (GrpcRemovePixKeyResponse) {}
+
+}
+
+service KeymanagerQueryDataService {
+
+  rpc queryPixKeyByClientIdAndPixId(GrpcQueryPixKeyByClientIdAndPixIdRequest) returns (GrpcQueryPixKeyByClientIdAndPixIdResponse) {}
+
+  rpc queryPixKeyByKeyValue(GrpcQueryPixKeyByKeyValueRequest) returns (GrpcQueryPixKeyByKeyValueResponse) {}
+
+  rpc listPixKeyByClientId(GrpcListPixKeyByClientIdRequest) returns (GrpcListPixKeyByClientIdResponse) {}
+
+}
+
+message GrpcListPixKeyByClientIdRequest {
+  string clientId = 1;
+}
+
+message GrpcListPixKeyByClientIdResponse {
+  string clientId = 1;
+  repeated GrpcPixKey pixKeys = 2;
+
+
+}
+
+message GrpcPixKey {
+  string pixId = 1;
+  GrpcKeyType keyType = 2;
+  string keyValue = 3;
+  GrpcAccountType accountType = 4;
+  GrpcCreatedAt createdAt = 5;
+}
+
+message GrpcQueryPixKeyByClientIdAndPixIdRequest {
+  string clientId = 1;
+  string pixId = 2;
+}
+
+message GrpcQueryPixKeyByKeyValueRequest {
+  string keyValue = 1;
+}
+
+message GrpcQueryPixKeyByClientIdAndPixIdResponse {
+  string pixId = 1;
+  string clientId = 2;
+  GrpcKeyType keyType = 3;
+  string keyValue = 4;
+  string ownerName = 5;
+  string ownerCPF = 6;
+  GrpcBankAccount bankAccount = 7;
+  GrpcCreatedAt createdAt = 8;
+}
+
+message GrpcQueryPixKeyByKeyValueResponse {
+  GrpcKeyType keyType = 3;
+  string keyValue = 4;
+  string ownerName = 5;
+  string ownerCPF = 6;
+  GrpcBankAccount bankAccount = 7;
+  GrpcCreatedAt createdAt = 8;
+}
+
+message GrpcBankAccount {
+  string participant = 1;
+  string branch = 2;
+  string accountNumber = 3;
+  GrpcAccountType accountType = 4;
+}
+
+message GrpcRemovePixKeyRequest {
+  string pixId = 1;
+  string clientId = 2;
+}
+
+message GrpcRemovePixKeyResponse {
+  string pixId = 1;
+  string clientId = 2;
+}
+
+message GrpcNewPixKeyRequest {
+  string clientId = 1;
+  GrpcKeyType keyType = 2;
+  string keyValue = 3;
+  GrpcAccountType accountType = 4;
+}
+
+message GrpcNewPixKeyResponse {
+  string pixId = 1;
+  string clientId = 2;
+  GrpcCreatedAt createdAt = 3;
+}
+
+message GrpcCreatedAt {
+  int32 day = 1;
+  int32 month = 2;
+  int32 year = 3;
+  int32 hour = 4;
+  int32 minute = 5;
+  int32 second = 6;
+}
+
+enum GrpcKeyType {
+  UNKNOWN_KEY_TYPE = 0;
+  CPF = 1;
+  TELEFONE_CELULAR = 2;
+  EMAIL = 3;
+  CHAVE_ALEATORIA = 4;
+}
+
+enum GrpcAccountType {
+  UNKNOWN_ACCOUNT_TYPE = 0;
+  CONTA_CORRENTE = 1;
+  CONTA_POUPANCA = 2;
+}
