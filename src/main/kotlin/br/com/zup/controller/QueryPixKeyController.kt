@@ -1,7 +1,9 @@
 package br.com.zup.controller
 
+import br.com.zup.GrpcListPixKeyByClientIdRequest
 import br.com.zup.GrpcQueryPixKeyByClientIdAndPixIdRequest
 import br.com.zup.KeymanagerQueryDataServiceGrpc
+import br.com.zup.util.grpc.toListQueryDataResponse
 import br.com.zup.util.grpc.toQueryDataResponse
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Controller
@@ -24,6 +26,18 @@ class QueryPixKeyController(@Inject val grpcClient: KeymanagerQueryDataServiceGr
 
         return HttpResponse.ok(grpcResponse.toQueryDataResponse())
 
+    }
+
+    @Get("/pix/all")
+    fun listPixKeyByClientId(clientId: UUID): HttpResponse<Any> {
+
+        val grpcRequest = GrpcListPixKeyByClientIdRequest.newBuilder()
+            .setClientId(clientId.toString())
+            .build()
+
+        val grpcResponse = grpcClient.listPixKeyByClientId(grpcRequest)
+
+        return HttpResponse.ok(grpcResponse.toListQueryDataResponse())
     }
 
 }

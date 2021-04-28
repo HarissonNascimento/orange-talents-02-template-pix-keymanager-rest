@@ -22,7 +22,7 @@ class KeymanagerGrpcFactory(@GrpcChannel("keyManager") val channel: ManagedChann
     }
 
     @Singleton
-    fun queryPixKeyByClientIdAndPixId(): KeymanagerQueryDataServiceGrpc.KeymanagerQueryDataServiceBlockingStub {
+    fun queryPixKey(): KeymanagerQueryDataServiceGrpc.KeymanagerQueryDataServiceBlockingStub {
         return KeymanagerQueryDataServiceGrpc.newBlockingStub(channel)
     }
 

@@ -28,6 +28,17 @@ internal class QueryPixKeyControllerTest {
         val EMAIL = GrpcKeyType.EMAIL
         const val EMAIL_VALUE = "teste@email.com"
         const val CPF_VALUE = "11111111111"
+        val ACCOUNT_TYPE = GrpcAccountType.CONTA_CORRENTE
+        val CREATED_AT: GrpcCreatedAt = LocalDateTime.now().let {
+            GrpcCreatedAt.newBuilder()
+                .setDay(it.dayOfMonth)
+                .setMonth(it.monthValue)
+                .setYear(it.year)
+                .setHour(it.hour)
+                .setMinute(it.minute)
+                .setSecond(it.second)
+                .build()
+        }
     }
 
     @field:Inject
@@ -58,6 +69,27 @@ internal class QueryPixKeyControllerTest {
 
     }
 
+    @Test
+    fun `must return all pix keys by client id`() {
+
+        val grpcRequest = GrpcListPixKeyByClientIdRequest.newBuilder()
+            .setClientId(CLIENT_ID)
+            .build()
+
+        given(queryPixKeyStub.listPixKeyByClientId(grpcRequest))
+            .willReturn(generateGrpcListPixKeyByClientIdResponse())
+
+        val httpRequest = HttpRequest.GET<Any>("/api/v1/client/$CLIENT_ID/pix/all")
+        val httpResponse = client.toBlocking().exchange(httpRequest, List::class.java)
+
+        with(httpResponse) {
+            assertEquals(HttpStatus.OK, status)
+            assertNotNull(body())
+            assertEquals(body().size, 1)
+        }
+
+    }
+
     @Factory
     @Replaces(factory = KeymanagerGrpcFactory::class)
     internal class MockitoStubFactory {
@@ -78,17 +110,6 @@ internal class QueryPixKeyControllerTest {
             .setAccountType(GrpcAccountType.CONTA_CORRENTE)
             .build()
 
-        val createdAt = LocalDateTime.now().let {
-            GrpcCreatedAt.newBuilder()
-                .setDay(it.dayOfMonth)
-                .setMonth(it.monthValue)
-                .setYear(it.year)
-                .setHour(it.hour)
-                .setMinute(it.minute)
-                .setSecond(it.second)
-                .build()
-        }
-
         return GrpcQueryPixKeyByClientIdAndPixIdResponse.newBuilder()
             .setPixId(PIX_ID)
             .setClientId(CLIENT_ID)
@@ -97,8 +118,26 @@ internal class QueryPixKeyControllerTest {
             .setOwnerName("Client Test")
             .setOwnerCPF(CPF_VALUE)
             .setBankAccount(bankAccount)
-            .setCreatedAt(createdAt)
+            .setCreatedAt(CREATED_AT)
             .build()
+    }
+
+    private fun generateGrpcListPixKeyByClientIdResponse(): GrpcListPixKeyByClientIdResponse {
+
+
+        val grpcPixKey = GrpcPixKey.newBuilder()
+            .setPixId(PIX_ID)
+            .setKeyType(EMAIL)
+            .setKeyValue(EMAIL_VALUE)
+            .setAccountType(ACCOUNT_TYPE)
+            .setCreatedAt(CREATED_AT)
+            .build()
+
+        return GrpcListPixKeyByClientIdResponse.newBuilder()
+            .setClientId(CLIENT_ID)
+            .addAllPixKeys(listOf(grpcPixKey))
+            .build()
+
     }
 
 }
